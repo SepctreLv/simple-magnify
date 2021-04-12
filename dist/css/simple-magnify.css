@@ -1,0 +1,14 @@
+/*!
+  * simple-magify v0.0.1 (https://github.com/SepctreLv/simple-magnify)
+  * Copyright 2021 SepctreLv
+  * Licensed under MIT
+  */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  padding: 0;
+  margin: 0;
+}
