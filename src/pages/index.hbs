@@ -3,6 +3,21 @@ title: Home
 ---
 {{#extend "layout-default"}}
   {{#content "main"}}
-    Hello World
+    <div class="preview">
+      <div class="magnify-wrap">
+        <div class="magnify">
+          <img class="magnify-image" src="https://i.picsum.photos/id/1076/400/400.jpg?hmac=sgCCffCzESI9KZvJFh0zKiyaetr5dm7BkNTnDsMquqY" alt="" data-origin="https://i.picsum.photos/id/1076/1600/1600.jpg?hmac=5GTciVn85jODkz5tA6I2MMYMdUitVk6k7LB3g2GnNFI">
+        </div>
+      </div>
+      <div class="thumb-list">
+        <ul>
+          {{#each data}}
+            <li class="thumb-item{{#with active}} active{{/with}}" data-url="{{ url }}" data-origin="{{ origin }}">
+              <img src="{{ thumb }}" alt="">
+            </li>
+          {{/each}}
+        </ul>
+      </div>
+    </div>
   {{/content}}
 {{/extend}}

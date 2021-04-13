@@ -1,1 +1,62 @@
+// Variables
+// ========================================================================
+$preview-gutter: 30px !default;
+$wrap-width: 400px !default;
+$thumb-list-gutter: 20px !default;
+$thumb-item-width: 64px !default;
+$border-color: rgba(0, 0, 0, 0.1) !default;
+
+// Name:            `Styles`
 //
+// Base styles
+//
+// ========================================================================
+ul,li {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+img {
+  vertical-align: middle;
+}
+
+.preview {
+  margin: $preview-gutter;
+}
+
+.magnify-wrap {
+  display: table-cell;
+  width: $wrap-width;
+  height: $wrap-width;
+  border: 1px solid $border-color;
+  text-align: center;
+  vertical-align: middle;
+  box-sizing: content-box;
+}
+
+.thumb {
+  &-list {
+    width: $wrap-width;
+    margin-top: $thumb-list-gutter;
+
+    ul {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .active {
+      outline: 2px solid coral;
+    }
+  }
+
+  &-item {
+    display: flex;
+    width: $thumb-item-width;
+
+    img {
+      width: 100%;
+      height: auto;
+    }
+  }
+}

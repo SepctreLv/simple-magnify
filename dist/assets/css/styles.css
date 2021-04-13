@@ -3,3 +3,51 @@
   * Copyright 2021 SepctreLv
   * Licensed under MIT
   */
+
+ul, li {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+img {
+  vertical-align: middle;
+}
+
+.preview {
+  margin: 30px;
+}
+
+.magnify-wrap {
+  display: table-cell;
+  width: 400px;
+  height: 400px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  text-align: center;
+  vertical-align: middle;
+  box-sizing: content-box;
+}
+
+.thumb-list {
+  width: 400px;
+  margin-top: 20px;
+}
+
+.thumb-list ul {
+  display: flex;
+  justify-content: space-between;
+}
+
+.thumb-list .active {
+  outline: 2px solid coral;
+}
+
+.thumb-item {
+  display: flex;
+  width: 64px;
+}
+
+.thumb-item img {
+  width: 100%;
+  height: auto;
+}

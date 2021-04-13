@@ -35,6 +35,7 @@ const compile = (src, dest) => {
       return bundle.write({
         file: dest,
         format: 'umd',
+        name: 'file',
         globals: {
           jquery: '$'
         },
