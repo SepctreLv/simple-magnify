@@ -4,6 +4,15 @@
   * Licensed under MIT
   */
 
+* {
+  box-sizing: border-box;
+}
+
+body {
+  padding: 0;
+  margin: 0;
+}
+
 ul, li {
   padding: 0;
   margin: 0;
@@ -15,7 +24,7 @@ img {
 }
 
 .preview {
-  margin: 30px;
+  margin: 50px;
 }
 
 .magnify-wrap {

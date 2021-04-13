@@ -1,8 +1,72 @@
-* {
-  box-sizing: border-box;
-}
+// Variables
+// ========================================================================
+$magnify: 'magnify' !default;
+$magnify-overlay-bg: rgba(0, 0, 0, 0.4) !default;
+$magnify-lens-bg: rgba(0, 0, 0, 0.2) !default;
 
-body {
-  padding: 0;
-  margin: 0;
+// Name:            `Magnify`
+//
+// Base styles
+//
+// ========================================================================
+.magnify {
+  position: relative;
+  display: inline-block;
+
+  &-overlay {
+    position: absolute;
+    z-index: 100;
+    background-color: $magnify-overlay-bg;
+
+    .#{$magnify}-lens {
+      position: absolute;
+      top: 0;
+      left: 0;
+      cursor: crosshair;
+      background-color: $magnify-lens-bg;
+    }
+  }
+
+  &-window {
+    position: absolute;
+    z-index: 99999999;
+    display: none;
+    overflow: hidden;
+
+    &-left {
+      .#{$magnify}-window {
+        top: 0;
+        right: 100%;
+        margin-right: 20px;
+      }
+    }
+
+    &-right {
+      .#{$magnify}-window {
+        top: 0;
+        left: 100%;
+        margin-left: 20px;
+      }
+    }
+
+    &-top {
+      .#{$magnify}-window {
+        left: 0;
+        bottom: 100%;
+        margin-bottom: 20px;
+      }
+    }
+
+    &-bottom {
+      .#{$magnify}-window {
+        left: 0;
+        top: 100%;
+        margin-top: 20px;
+      }
+    }
+
+    &.#{$magnify}-window-show {
+      display: block;
+    }
+  }
 }

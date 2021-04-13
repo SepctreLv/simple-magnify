@@ -1,6 +1,6 @@
 // Variables
 // ========================================================================
-$preview-gutter: 30px !default;
+$preview-gutter: 50px !default;
 $wrap-width: 400px !default;
 $thumb-list-gutter: 20px !default;
 $thumb-item-width: 64px !default;
@@ -11,6 +11,15 @@ $border-color: rgba(0, 0, 0, 0.1) !default;
 // Base styles
 //
 // ========================================================================
+* {
+  box-sizing: border-box;
+}
+
+body {
+  padding: 0;
+  margin: 0;
+}
+
 ul,li {
   padding: 0;
   margin: 0;

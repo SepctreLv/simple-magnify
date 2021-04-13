@@ -17,8 +17,6 @@ thumbElements.forEach((thumbElement) => {
 });
 
 const magnifyElement = document.querySelector('.magnify');
-if (magnifyElement) {
-  new Magnify(magnifyElement, {
-    delay: 0
-  });
-}
+new Magnify(magnifyElement, {
+  delay: 0
+});

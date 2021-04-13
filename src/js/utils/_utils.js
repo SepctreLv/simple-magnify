@@ -73,6 +73,22 @@ export const isEmptyObject = val => {
   return isObject(val) && Object.getOwnPropertyNames(val).length == 0
 }
 
+// is a given value NaN?
+export const isNan = val => {
+  // NaN is number :) Also it is the only value which does not equal itself
+  return val !== val
+}
+
+// is a given value number?
+export const isNumber = val => {
+  return !isNan(val) && toString.call(val) === '[object Number]'
+}
+
+// is a given value numeric?
+export const isNumeric = n => {
+  return (isNumber(n) || isString(n)) && !isNan(n - parseFloat(n))
+}
+
 export const throttle = (type, name, obj) => {
   obj = obj || window
 
@@ -197,4 +213,61 @@ function deepMergeTwo(target, source) {
 
 export const deepMerge = (...args) => {
   return args.filter(isObject).reduce(deepMergeTwo, {})
+}
+
+export const dasherize = word =>
+  word.replace(/([a-z\d])([A-Z])/g, '$1-$2').toLowerCase()
+
+const isCssNumber = name => {
+  return ![
+    'animationIterationCount',
+    'columnCount',
+    'fillOpacity',
+    'flexGrow',
+    'flexShrink',
+    'fontWeight',
+    'lineHeight',
+    'opacity',
+    'order',
+    'orphans',
+    'widows',
+    'zIndex',
+    'zoom'
+  ].includes(name)
+}
+
+export const isCSSVariable = name => {
+  return /^--/.test(name)
+}
+
+export const setStyle = (key, value, el) => {
+  if (isString(key) && isElement(el)) {
+    if (value || value === 0) {
+      if (isCSSVariable(key)) {
+        el.style.setProperty(key, value)
+      } else {
+        key = camelize(key, false)
+        if (isNumeric(value) && isCssNumber(key)) {
+          value += 'px'
+        }
+        el.style[key] = value
+      }
+    } else {
+      el.style.removeProperty(dasherize(key))
+    }
+  } else if (isObject(key)) {
+    if (isElement(value) && typeof el === 'undefined') {
+      el = value
+      value = undefined
+    }
+    let prop
+
+    for (prop in key) {
+      if (Object.prototype.hasOwnProperty.call(key, prop)) {
+        setStyle(prop, key[prop], el)
+      }
+    }
+  }
+
+  return el
 }

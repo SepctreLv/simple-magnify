@@ -4,11 +4,56 @@
   * Licensed under MIT
   */
 
-* {
-  box-sizing: border-box;
+.magnify {
+  position: relative;
+  display: inline-block;
 }
 
-body {
-  padding: 0;
-  margin: 0;
+.magnify-overlay {
+  position: absolute;
+  z-index: 100;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.magnify-overlay .magnify-lens {
+  position: absolute;
+  top: 0;
+  left: 0;
+  cursor: crosshair;
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+.magnify-window {
+  position: absolute;
+  z-index: 99999999;
+  display: none;
+  overflow: hidden;
+}
+
+.magnify-window-left .magnify-window {
+  top: 0;
+  right: 100%;
+  margin-right: 20px;
+}
+
+.magnify-window-right .magnify-window {
+  top: 0;
+  left: 100%;
+  margin-left: 20px;
+}
+
+.magnify-window-top .magnify-window {
+  left: 0;
+  bottom: 100%;
+  margin-bottom: 20px;
+}
+
+.magnify-window-bottom .magnify-window {
+  left: 0;
+  top: 100%;
+  margin-top: 20px;
+}
+
+.magnify-window.magnify-window-show {
+  display: block;
 }

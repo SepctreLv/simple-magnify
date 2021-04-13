@@ -1,6 +1,6 @@
 import { curry, isString, isElement, isEmptyObject } from './_utils'
 
-const dataStore = '__navjsData'
+const dataStore = '__magnifyData'
 const getCachedData = el => {
   return (el[dataStore] = el[dataStore] || {})
 }
