@@ -3,7 +3,6 @@
 const config = require('../config');
 const path = require('path');
 const expand = require('glob-expand');
-const fs = require('fs-extra');
 const globParent = require('glob-parent');
 const colors = require('colors');
 const rollup = require('rollup');
@@ -19,8 +18,7 @@ const compile = (src, dest) => {
       external: ['jquery'],
       plugins: [
         resolve({
-          jsnext: true,
-          main: true,
+          mainFields: ['jsnext:main', 'module', 'main'],
           browser: true,
         }),
         commonjs({

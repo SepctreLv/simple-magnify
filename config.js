@@ -20,13 +20,31 @@ module.exports = {
     build: 'dist'
   },
 
+  assets: {
+    source: 'src/assets',
+    build: 'dist/assets'
+  },
+
   styles: {
     source: 'src/css/**/*.scss',
-    build: 'dist/css'
+    build: 'dist/assets/css'
   },
 
   scripts: {
     source: 'src/js/*.js',
-    build: 'dist/js'
+    build: 'dist/assets/js'
+  },
+
+  html: {
+    pages: 'src/pages/**/*.hbs',
+    data: "src/data/**/*.{js,json}",
+    helpers: "src/helpers/*.js",
+    layouts: "src/layouts/**/*.hbs",
+    partials: "src/partials/**/*.hbs",
+    build: 'dist',
+    metadata: {
+      production,
+      pkg
+    }
   }
 }

@@ -12,10 +12,6 @@ const header = require('postcss-header');
 const autoprefixer = require('autoprefixer');
 const rename = require('rename');
 
-const getModulesPath = () => {
-  return path.join(process.cwd(), '..');
-};
-
 const compile = (src, dest) => {
   try {
     var result = sass.renderSync({
