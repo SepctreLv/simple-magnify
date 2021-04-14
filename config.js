@@ -17,22 +17,22 @@ module.exports = {
 
   paths: {
     source: 'src',
-    build: 'docs'
+    build: 'dist'
   },
 
   assets: {
     source: 'src/assets',
-    build: 'docs/assets'
+    build: 'dist/assets'
   },
 
   styles: {
     source: 'src/css/**/*.scss',
-    build: 'docs/assets/css'
+    build: 'dist/assets/css'
   },
 
   scripts: {
     source: 'src/js/*.js',
-    build: 'docs/assets/js'
+    build: 'dist/assets/js'
   },
 
   html: {
@@ -41,7 +41,7 @@ module.exports = {
     helpers: "src/helpers/*.js",
     layouts: "src/layouts/**/*.hbs",
     partials: "src/partials/**/*.hbs",
-    build: 'docs',
+    build: 'dist',
     metadata: {
       production,
       pkg
@@ -50,6 +50,6 @@ module.exports = {
 
   images: {
     source: 'src/images/**/*.{jpg,png,gif,webp}',
-    build: 'docs/assets/images/'
+    build: 'dist/assets/images/'
   }
 }
