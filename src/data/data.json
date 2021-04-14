@@ -1,35 +1,35 @@
 {
   "default": {
     "preview": {
-      "url": "./assets/images/1-400x400.jpg",
-      "origin": "./assets/images/1-1600x1600.jpg"
+      "url": "assets/images/1-400x400.jpg",
+      "origin": "assets/images/1-1600x1600.jpg"
     },
     "list": [
       {
         "active": true,
-        "thumb": "./assets/images/1-58x58.jpg",
-        "url": "./assets/images/1-400x400.jpg",
-        "origin": "./assets/images/1-1600x1600.jpg"
+        "thumb": "assets/images/1-58x58.jpg",
+        "url": "assets/images/1-400x400.jpg",
+        "origin": "assets/images/1-1600x1600.jpg"
       },
       {
-        "thumb": "./assets/images/2-58x58.jpg",
-        "url": "./assets/images/2-400x400.jpg",
-        "origin": "./assets/images/2-1600x1600.jpg"
+        "thumb": "assets/images/2-58x58.jpg",
+        "url": "assets/images/2-400x400.jpg",
+        "origin": "assets/images/2-1600x1600.jpg"
       },
       {
-        "thumb": "./assets/images/3-58x58.jpg",
-        "url": "./assets/images/3-400x400.jpg",
-        "origin": "./assets/images/3-1600x1600.jpg"
+        "thumb": "assets/images/3-58x58.jpg",
+        "url": "assets/images/3-400x400.jpg",
+        "origin": "assets/images/3-1600x1600.jpg"
       },
       {
-        "thumb": "./assets/images/4-58x58.jpg",
-        "url": "./assets/images/4-400x300.jpg",
-        "origin": "./assets/images/4-1600x1200.jpg"
+        "thumb": "assets/images/4-58x58.jpg",
+        "url": "assets/images/4-400x300.jpg",
+        "origin": "assets/images/4-1600x1200.jpg"
       },
       {
-        "thumb": "./assets/images/5-58x58.jpg",
-        "url": "./assets/images/5-300x400.jpg",
-        "origin": "./assets/images/5-1200x1600.jpg"
+        "thumb": "assets/images/5-58x58.jpg",
+        "url": "assets/images/5-300x400.jpg",
+        "origin": "assets/images/5-1200x1600.jpg"
       }
     ]
   }
