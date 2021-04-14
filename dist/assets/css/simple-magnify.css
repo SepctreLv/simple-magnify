@@ -11,7 +11,12 @@
 
 .magnify-overlay {
   position: absolute;
+  top: 0;
+  left: 0;
   z-index: 100;
+  display: none;
+  width: 100%;
+  height: 100%;
   background-color: rgba(0, 0, 0, 0.4);
 }
 
@@ -20,7 +25,12 @@
   top: 0;
   left: 0;
   cursor: crosshair;
+  margin-top: -4px;
+  margin-left: -4px;
+  border: 4px solid #ffffff;
+  border-radius: 2px;
   background-color: rgba(0, 0, 0, 0.2);
+  box-sizing: content-box;
 }
 
 .magnify-window {
@@ -28,6 +38,19 @@
   z-index: 99999999;
   display: none;
   overflow: hidden;
+  border-radius: 2px;
+  background-color: #fff;
+  background-position: 50% 50%;
+  background-repeat: no-repeat;
+  box-shadow: 0 0 20px 2px rgba(0, 0, 0, 0.5);
+}
+
+.magnify-window img,
+.magnify-window .magnify-window-image {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 
 .magnify-window-left .magnify-window {

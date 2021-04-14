@@ -5,7 +5,7 @@
   "license": "MIT",
   "homepage": "https://github.com/SepctreLv/simple-magnify",
   "scripts": {
-    "start": "npm-run-all --sequential build --parallel serve watch",
+    "start": "npm-run-all --sequential --parallel serve watch",
     "build": "npm-run-all css:compile js:compile html:compile",
     "dist": "NODE_ENV=prod npm-run-all css js html",
     "clean": "npm-run-all clean:*",

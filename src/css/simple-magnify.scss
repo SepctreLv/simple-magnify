@@ -1,7 +1,9 @@
 // Variables
 // ========================================================================
 $magnify: 'magnify' !default;
+$magnify-lens-border-width: 4px !default;
 $magnify-overlay-bg: rgba(0, 0, 0, 0.4) !default;
+$magnify-lens-border-color: #ffffff !default;
 $magnify-lens-bg: rgba(0, 0, 0, 0.2) !default;
 
 // Name:            `Magnify`
@@ -15,7 +17,12 @@ $magnify-lens-bg: rgba(0, 0, 0, 0.2) !default;
 
   &-overlay {
     position: absolute;
+    top: 0;
+    left: 0;
     z-index: 100;
+    display: none;
+    width: 100%;
+    height: 100%;
     background-color: $magnify-overlay-bg;
 
     .#{$magnify}-lens {
@@ -23,7 +30,12 @@ $magnify-lens-bg: rgba(0, 0, 0, 0.2) !default;
       top: 0;
       left: 0;
       cursor: crosshair;
+      margin-top: -$magnify-lens-border-width;
+      margin-left: -$magnify-lens-border-width;
+      border: $magnify-lens-border-width solid $magnify-lens-border-color;
+      border-radius: 2px;
       background-color: $magnify-lens-bg;
+      box-sizing: content-box;
     }
   }
 
@@ -32,6 +44,19 @@ $magnify-lens-bg: rgba(0, 0, 0, 0.2) !default;
     z-index: 99999999;
     display: none;
     overflow: hidden;
+    border-radius: 2px;
+    background-color: #fff;
+    background-position: 50% 50%;
+    background-repeat: no-repeat;
+    box-shadow: 0 0 20px 2px rgba(0, 0, 0, 0.5);
+
+    img,
+    .#{$magnify}-window-image {
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
 
     &-left {
       .#{$magnify}-window {

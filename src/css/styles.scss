@@ -35,6 +35,7 @@ img {
 }
 
 .magnify-wrap {
+  position: relative;
   display: table-cell;
   width: $wrap-width;
   height: $wrap-width;
