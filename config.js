@@ -46,5 +46,10 @@ module.exports = {
       production,
       pkg
     }
+  },
+
+  images: {
+    source: 'src/images/**/*.{jpg,png,gif,webp}',
+    build: 'dist/assets/images/'
   }
 }

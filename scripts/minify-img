@@ -1,0 +1,49 @@
+#!/usr/bin/env node
+
+const imagemin = require('imagemin');
+const mozJpegPlugin = require('imagemin-mozjpeg');
+const gifLossyPlugin = require('imagemin-giflossy');
+const pngquantPlugin = require('imagemin-pngquant');
+const svgoPlugin = require('imagemin-svgo');
+const globParent = require('glob-parent');
+const expand = require('glob-expand');
+const path = require('path');
+const config = require('../config');
+const colors = require('colors');
+
+const minify = (source, dest) => {
+  imagemin([source], {
+    destination: dest,
+    plugins: [
+      mozJpegPlugin({ progressive: true }),
+      pngquantPlugin(),
+      gifLossyPlugin(),
+      svgoPlugin({
+        plugins: [
+          {
+            removeViewBox: true
+          }
+        ]
+      })
+    ]
+  }).then(files => {
+    files.forEach(file => {
+      console.log(colors.green(`${file.destinationPath} minified.`));
+    });
+  });
+}
+
+const base = globParent(config.images.source);
+const files = expand(
+  {
+    cwd: process.cwd()
+  },
+  config.images.source
+);
+
+files.forEach(file => {
+  const filename = path.join(config.images.build, path.relative(base, file));
+  const dest = path.dirname(filename)
+
+  minify(file, dest)
+});
