@@ -1,4 +1,4 @@
-import { CLASSES, SELECTORS, DEFAULTS, LOADER } from './_constant';
+import { CLASSES, DEFAULTS, LOADER } from './_constant';
 import * as utils from './utils/_utils';
 import * as dom from './utils/_dom';
 import * as event from './utils/_event';
@@ -7,12 +7,10 @@ export default class Magnify {
   constructor(element, options) {
     this.$element = element
     this._states = {}
-    this.options = utils.deepMerge({}, DEFAULTS, options, this.getDataOptions())
-    this.classes = utils.deepMerge({}, CLASSES, this.options.classes)
-    this.selectors = utils.deepMerge({}, SELECTORS, this.options.selectors)
+    this.options = Object.assign({}, DEFAULTS, options, this.getDataOptions())
+    this.classes = Object.assign({}, CLASSES, this.options.classes)
     this.pageX = null
     this.pageY = null
-    this.timer = null
     this.overlayTimer = null
     this.overlayVisible = false
     this.stopLoading = false
@@ -38,38 +36,36 @@ export default class Magnify {
     }
   }
 
-  initOverlay() {
-    this.$overlay = dom.appendTo(`<div class="${this.classes.OVERLAY}"><div class="${this.classes.LENS}"></div></div>`, this.$element)
-    this.$lens = dom.query(this.selectors.LENS, this.$overlay)
-
-    this.bindOverlayEvent()
-  }
-
   initWindow() {
-    this.$window = dom.appendTo(`<div class="${this.classes.WINDOW}"><img src="" alt="" /></div>`, this.$wrap)
-    this.$windowImage = dom.query('img', this.$window)
-    this.$windowImage.classList.add(this.classes.WINDOWIMAGE)
+    this.$window = dom.appendTo(`<div class="${this.classes.WINDOW}"><img class="${this.classes.WINDOWIMAGE}" src="" alt="" /></div>`, this.$wrap)
+    this.$windowImage = dom.query(`.${this.classes.WINDOWIMAGE}`, this.$window)
     utils.setStyle({
       width: this.options.windowWidth,
       height: this.options.windowHeight
     }, this.$window)
-    this.$wrap.classList.add(this.classes.POSITION + this.options.position)
+    this.$wrap.classList.add(`${this.classes.POSITION}${this.options.position}`)
+  }
+
+  initOverlay() {
+    this.$overlay = dom.appendTo(`<div class="${this.classes.OVERLAY}"><div class="${this.classes.LENS}"></div></div>`, this.$element)
+    this.$lens = dom.query(`.${this.classes.LENS}`, this.$overlay)
+    this.bindOverlayEvent()
   }
 
   bindOverlayEvent() {
+    event.bindEvent('mouseenter', () => {
+      if (this.overlayTimer) {
+        clearTimeout(this.overlayTimer)
+        this.overlayTimer = null
+      }
+    }, this.$overlay)
+
     event.bindEvent('mouseleave', () => {
       event.trigger(this.eventName('hideoverlay'), this.$overlay)
       this.overlayVisible = false
       utils.setStyle({
         display: 'none'
       }, this.$overlay)
-    }, this.$overlay)
-
-    event.bindEvent('mouseenter', () => {
-      if (this.overlayTimer) {
-        clearTimeout(this.overlayTimer)
-        this.overlayTimer = null
-      }
     }, this.$overlay)
   }
 
@@ -91,19 +87,22 @@ export default class Magnify {
     }, this.$overlay)
 
     event.bindEvent(this.eventName('mousemove'), e => {
-      this.moveWindow(e, this.$image)
+      this.moveWindow(e)
     }, this.$overlay)
 
     this.showOverlay()
-    event.trigger(this.eventName('windowshow'), this.$element)
-    this.delay()
+    this.stopLoading = true
+    utils.setStyle({
+      width: this.options.windowWidth,
+      height: this.options.windowHeight
+    }, this.$window)
+    this.showWindowImage()
   }
 
   hideWindow(e) {
     if(e && e.stopPropagation) e.stopPropagation()
 		if(e && e.preventDefault) e.preventDefault()
 
-    clearTimeout(this.timer)
     event.removeEvent(this.eventName('hideoverlay'), this.$overlay)
     event.removeEvent(this.eventName('mousemove'), this.$overlay)
     this.stopLoading = false
@@ -113,23 +112,32 @@ export default class Magnify {
       transform: 'none'
     }, this.$windowImage)
     this.$window.classList.remove(this.classes.SHOW)
-    event.trigger(this.eventName('windowhide'), this.$element)
     this.clearLens()
   }
 
-  moveWindow(e, $target) {
+  moveWindow(e) {
     e.preventDefault()
 		e.stopPropagation()
     this.pageX = e.pageX
 		this.pageY = e.pageY
-    this.positionWindow($target, e)
+    this.positionWindow(e, this.$image)
+  }
+
+  positionWindow(e, $image) {
+    const mouseX = Math.round(e.pageX - dom.getOffset($image).left)
+    const mouseY = Math.round(e.pageY - dom.getOffset($image).top)
+    const lensPos = this.moveLens(mouseX, mouseY)
+    const width = dom.outerWidth(this.$windowImage)
+    const height = dom.outerHeight(this.$windowImage)
+    const left = -Math.round(width * lensPos.x)
+    const top = -Math.round(height * lensPos.y)
+
+    this.moveWindowImage(left, top)
   }
 
   showOverlay() {
     event.trigger(this.eventName('showoverlay'), this.$overlay)
     utils.setStyle({
-      width: dom.outerWidth(this.$image),
-      height: dom.outerHeight(this.$image),
       display: 'block'
     }, this.$overlay)
     this.overlayVisible = true
@@ -145,19 +153,7 @@ export default class Magnify {
     }, 100)
   }
 
-  delay() {
-    this.stopLoading = true
-    this.timer = setTimeout(() => {
-      this.delayWindow()
-    }, 1)
-  }
-
-  delayWindow() {
-    utils.setStyle({
-      width: this.options.windowWidth,
-      height: this.options.windowHeight
-    }, this.$window)
-
+  showWindowImage() {
     const imagePreview = new Image()
     const src = this.$image.getAttribute(this.options.source)
     imagePreview.src = src
@@ -165,7 +161,6 @@ export default class Magnify {
     if (this.stopLoading) {
       this.$window.classList.add(this.classes.SHOW)
       this.$windowImage.setAttribute('src', src)
-      // $window set background-image to loaderUrl
       utils.setStyle({
         'background-image': `url(${LOADER.loader})`
       }, this.$window)
@@ -177,7 +172,7 @@ export default class Magnify {
       if (self.stopLoading) {
         self.$window.classList.add(self.classes.SHOW)
         utils.setStyle({
-          'background-color': '#fff'
+          'background-color': self.options.windowBackground || '#ffffff'
         }, self.$window)
         let width = self.options.windowWidth * 2
         let height = self.options.windowHeight * 2
@@ -194,7 +189,6 @@ export default class Magnify {
         self.$windowImage.setAttribute('src', src)
         self.$windowImage.setAttribute('width', width)
         self.$windowImage.setAttribute('height', height)
-        // $window set background-image to none
         utils.setStyle('background-image', 'none', self.$window)
 
         const e = {
@@ -203,99 +197,80 @@ export default class Magnify {
         }
 
         self.initLens()
-        self.positionWindow(self.$image, e)
+        self.positionWindow(e, self.$image)
       }
     })
+  }
+
+  moveWindowImage(left, top) {
+    if (left >= 0) {
+      left = 0
+    }
+    if (left <= this.options.windowWidth - dom.outerWidth(this.$windowImage)) {
+      left = this.options.windowWidth - dom.outerWidth(this.$windowImage)
+    }
+    if (top >= 0) {
+      top = 0
+    }
+    if (top <= this.options.windowHeight - dom.outerHeight(this.$windowImage)) {
+      top = this.options.windowHeight - dom.outerHeight(this.$windowImage)
+    }
+
+    utils.setStyle({
+      transform: `translate(${left}px, ${top}px)`
+    }, this.$windowImage)
   }
 
   initLens() {
     const ratioWidth = this.options.windowWidth / dom.outerWidth(this.$windowImage)
     const ratioHeight = this.options.windowHeight / dom.outerHeight(this.$windowImage)
-    utils.setStyle({
-      'background': `url(${this.$image.getAttribute('src')}) 0 0 no-repeat`
-    }, this.$lens)
     const width = Math.round(ratioWidth * dom.outerWidth(this.$image))
     const height = Math.round(ratioHeight * dom.outerHeight(this.$image))
-    this.setLensSize(width, height)
-  }
+    this.lensSize.width = width
+    this.lensSize.height = height
 
-  setLensSize(width, height) {
     utils.setStyle({
       width,
       height
     }, this.$lens)
-    this.lensSize.width = width
-    this.lensSize.height = height
-  }
 
-  clearLens() {
     utils.setStyle({
-      background: 'transparent'
+      'background': `url(${this.$image.getAttribute('src')}) 0 0 no-repeat`
     }, this.$lens)
   }
 
-  positionWindow($target, e) {
-    const mouseX = Math.round(e.pageX - dom.getOffset($target).left)
-    const mouseY = Math.round(e.pageY - dom.getOffset($target).top)
-    const lensPos = this.moveLens(mouseX, mouseY)
-    const width = dom.outerWidth(this.$windowImage)
-    const height = dom.outerHeight(this.$windowImage)
-    const left = -Math.round(width * lensPos.x)
-    const top = -Math.round(height * lensPos.y)
-
-    this.moveWindowImage(left, top)
-  }
-
-  moveWindowImage(left, top) {
-    const width = this.options.windowWidth
-    const height = this.options.windowHeight
-    const $img = this.$windowImage
-
-    if (left >= 0) {
-      left = 0
-    }
-    if (left <= width - dom.outerWidth($img)) {
-      left = width - dom.outerWidth($img)
-    }
-    if (top >= 0) {
-      top = 0
-    }
-    if (top <= height - dom.outerHeight($img)) {
-      top = height - dom.outerHeight($img)
-    }
-
-    utils.setStyle({
-      transform: `translate(${left}px, ${top}px)`
-    }, $img)
-  }
-
   moveLens(mouseX, mouseY) {
-    const $img = this.$image
-    const size = this.lensSize
-    let left = Math.round(mouseX - size.width / 2)
-    let top = Math.round(mouseY - size.height / 2)
+    let left = Math.round(mouseX - this.lensSize.width / 2)
+    let top = Math.round(mouseY - this.lensSize.height / 2)
 
     if (left <= 0) {
       left = 0
     }
-    if (left >= dom.outerWidth($img) - size.width) {
-      left = dom.outerWidth($img) - size.width
+    if (left >= dom.outerWidth(this.$image) - this.lensSize.width) {
+      left = dom.outerWidth(this.$image) - this.lensSize.width
     }
     if (top <= 0) {
       top = 0
     }
-    if (top >= dom.outerHeight($img) - size.height) {
-      top = dom.outerHeight($img) - size.height
+    if (top >= dom.outerHeight(this.$image) - this.lensSize.height) {
+      top = dom.outerHeight(this.$image) - this.lensSize.height
     }
 
     utils.setStyle({
       transform: `translate(${left}px, ${top}px)`,
       backgroundPosition: `${-left}px ${-top}px`
     }, this.$lens)
+
     return {
-      x: left / dom.outerWidth($img),
-      y: top / dom.outerHeight($img)
+      x: left / dom.outerWidth(this.$image),
+      y: top / dom.outerHeight(this.$image)
     }
+  }
+
+  clearLens() {
+    utils.setStyle({
+      background: 'transparent'
+    }, this.$lens)
   }
 
   eventName(eventName) {

@@ -9,15 +9,11 @@ export const CLASSES = {
   IMAGE: 'magnify-image'
 }
 
-export const SELECTORS = {
-  LENS: '.magnify-lens',
-  WINDOW: '.magnify-window'
-}
-
 export const DEFAULTS = {
   source: 'data-origin',
   windowWidth: 400,
   windowHeight: 400,
+  windowBackground: '#ffffff',
   position: 'right', // top, bottom, left, right
   wrapSelector: null
 };

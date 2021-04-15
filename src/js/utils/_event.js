@@ -70,7 +70,7 @@ const dispatch = e => {
   }
 }
 
-const bind = (event, selector, callback, element, once) => {
+const bind = (event, selector, callback, element) => {
   const emitter = EventEmitter.getEventEmitter(element)
   const { eventName } = EventEmitter.parseEvent(event)
 
@@ -81,11 +81,7 @@ const bind = (event, selector, callback, element, once) => {
   const delegator = getDelegator(event, selector, callback, element)
   callback._delegator = delegator
 
-  if (once) {
-    emitter.once(event, delegator)
-  } else {
-    emitter.on(event, delegator)
-  }
+  emitter.on(event, delegator)
 }
 
 export const removeEvent = curryWith((events, selector, callback, element) => {
@@ -158,5 +154,3 @@ export const bindEvent = curryWith((events, selector, callback, element) => {
 
   return element
 }, supportEventListener)
-
-export const getEventEmitter = element => EventEmitter.getEventEmitter(element)

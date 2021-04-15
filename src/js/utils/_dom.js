@@ -1,9 +1,4 @@
-import { curry, isString, isElement, isEmptyObject } from './_utils'
-
-const dataStore = '__magnifyData'
-const getCachedData = el => {
-  return (el[dataStore] = el[dataStore] || {})
-}
+import { curry, isString} from './_utils'
 
 export const parseHTML = (...args) => {
   const htmlString = Array.isArray(args[0])
@@ -35,99 +30,6 @@ export const parseHTML = (...args) => {
 export const query = (selector, parent = document) =>
   parent.querySelector(selector)
 
-export const queryAll = (selector, parent = document) =>
-  Array.from(parent.querySelectorAll(selector))
-
-export const children = (selector, el) => {
-  if (!isString(selector) && typeof el === 'undefined') {
-    el = selector
-    selector = undefined
-  }
-
-  if (!isElement(el)) {
-    return []
-  }
-
-  if (isString(selector)) {
-    return Array.from(el.children).filter(c => c.matches(selector))
-  }
-
-  return Array.from(el.children)
-}
-
-export const siblings = (selector, el) => {
-  if (!isString(selector) && typeof el === 'undefined') {
-    el = selector
-    selector = undefined
-  }
-
-  if (!isElement(el)) {
-    return []
-  }
-
-  return children(selector, el.parentNode).filter(element => element !== el)
-}
-
-export const parent = el => el.parentNode
-
-export const parents = (selector, el) => {
-  if (!isString(selector) && typeof el === 'undefined') {
-    el = selector
-    selector = undefined
-  }
-
-  const result = []
-  let last = el
-
-  while (
-    isElement(last) &&
-    last.parentNode &&
-    last !== document.body.parentNode
-  ) {
-    last = last.parentNode
-
-    if (!selector || (selector && last.matches(selector))) {
-      result.push(last)
-    }
-  }
-
-  return result
-}
-
-export const find = curry((selector, parent) => parent.querySelector(selector))
-
-export const findAll = curry((selector, parent) =>
-  Array.from(parent.querySelectorAll(selector))
-)
-
-export const parentWith = curry((fn, el) => {
-  const parentElement = el.parentNode
-  if (!parentElement || parentElement === document) {
-    return false
-  }
-  if (fn(parentElement)) {
-    return parentElement
-  }
-  return parentWith(fn, parentElement)
-})
-
-export const closest = (selector, el) => {
-  if (el.matches(selector)) {
-    return el
-  }
-  return parentWith(el => el.matches(selector), el)
-}
-
-export const append = curry((child, el) => {
-  if (isString(child)) {
-    el.insertAdjacentHTML('beforeend', child)
-  } else {
-    el.append(child)
-  }
-
-  return el
-})
-
 export const appendTo = curry((child, el) => {
   if (isString(child)) {
     child = parseHTML(child)
@@ -137,74 +39,6 @@ export const appendTo = curry((child, el) => {
   return child
 })
 
-export const prepend = curry((child, el) => {
-  if (isString(child)) {
-    el.insertAdjacentHTML('afterbegin', child)
-  } else {
-    el.prepend(child)
-  }
-
-  return el
-})
-
-export const empty = curry(el => {
-  while (el.lastChild) {
-    el.removeChild(el.lastChild)
-  }
-  return el
-})
-
-export const getData = (key, el) => {
-  if (isElement(key) && typeof el === 'undefined') {
-    el = key
-    key = undefined
-  }
-
-  const cache = getCachedData(el)
-  if (key) {
-    if (!(key in cache)) {
-      let value = el.dataset[key] || el.dataset[camelize(key, false)]
-
-      if (value !== undefined) {
-        try {
-          value = JSON.parse(value)
-        } catch (e) {} // eslint-disable-line
-
-        cache[key] = value
-      }
-    }
-
-    return cache[key]
-  }
-
-  return cache
-}
-
-export const setData = (key, value, el) => {
-  getCachedData(el)[key] = value
-
-  return el
-}
-
-export const removeData = (key, el) => {
-  if (isElement(key) && typeof el === 'undefined') {
-    el = key
-    key = undefined
-  }
-
-  if (typeof key === 'undefined') {
-    delete el[dataStore]
-  } else {
-    delete getCachedData(el)[key]
-  }
-
-  return el
-}
-
-export const hasData = el => {
-  return dataStore in el ? !isEmptyObject(el[dataStore]) : false
-}
-
 export const getDefaultView = el => {
   let view = el.ownerDocument.defaultView
 
@@ -213,14 +47,6 @@ export const getDefaultView = el => {
   }
 
   return view
-}
-
-export const getDocWidth = () => {
-  return document.documentElement.clientWidth || document.body.clientWidth
-}
-
-export const getDocHeight = () => {
-  return document.documentElement.clientHeight || document.body.clientHeight
 }
 
 export const getOffset = el => {

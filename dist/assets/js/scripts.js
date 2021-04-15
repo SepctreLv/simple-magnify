@@ -143,14 +143,11 @@
     SHOW: 'magnify-window-show',
     IMAGE: 'magnify-image'
   };
-  var SELECTORS = {
-    LENS: '.magnify-lens',
-    WINDOW: '.magnify-window'
-  };
   var DEFAULTS = {
     source: 'data-origin',
     windowWidth: 400,
     windowHeight: 400,
+    windowBackground: '#ffffff',
     position: 'right',
     // top, bottom, left, right
     wrapSelector: null
@@ -159,72 +156,27 @@
     loader: 'data:image/gif;base64,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'
   };
 
-  // is a given value Date Object?
-  var isDate = function isDate(value) {
-    return toString.call(value) === '[object Date]';
-  }; // is a given value Map?
-
-  var isMap = function isMap(val) {
-    return val != null && val.constructor ? val.constructor.name === 'Map' : false;
-  }; // is a given value Set?
-
-  var isSet = function isSet(val) {
-    return val != null && val.constructor ? val.constructor.name === 'Set' : false;
-  }; // is a given value Symbol?
-
-  var isSymbol = function isSymbol(val) {
-    return val != null && val.constructor ? val.constructor.name === 'Symbol' : false;
-  }; // is a given value RegExp?
-
-  var isRegexp = function isRegexp(val) {
-    return toString.call(val) === '[object RegExp]';
-  }; // is a given value Error object?
-
-  var isError = function isError(val) {
-    return toString.call(val) === '[object Error]';
-  }; // is a given value Array?
-
-  var isArray = function isArray(val) {
-    if (Array.isArray) {
-      return Array.isArray(val);
-    }
-
-    return toString.call(val) === '[object Array]';
-  }; // is a given value object?
-
   var isObject = function isObject(val) {
     return Object(val) === val;
-  }; // is a given value plain object?
-
+  };
   var isPlainObject = function isPlainObject(val) {
     return toString.call(val) === '[object Object]';
-  }; // is a given value undefined?
-
-  var isUndefined = function isUndefined(val) {
-    return val === void 0;
-  }; // is a given object a Element?
-
+  };
   var isElement = function isElement(el) {
     return isObject(el) && el.nodeType === 1 && !isPlainObject(el);
   };
   var isString = function isString(val) {
     return typeof val === 'string' || toString.call(val) === '[object String]';
-  }; // is a given value function?
-
+  };
   var isFunction = function isFunction(val) {
-    // fallback check is for IE
     return toString.call(val) === '[object Function]' || typeof val === 'function';
-  }; // is a given value empty object?
-
+  };
   var isNan = function isNan(val) {
-    // NaN is number :) Also it is the only value which does not equal itself
     return val !== val;
-  }; // is a given value number?
-
+  };
   var isNumber = function isNumber(val) {
     return !isNan(val) && toString.call(val) === '[object Number]';
-  }; // is a given value numeric?
-
+  };
   var isNumeric = function isNumeric(n) {
     return (isNumber(n) || isString(n)) && !isNan(n - parseFloat(n));
   };
@@ -276,63 +228,6 @@
     }
 
     return word;
-  };
-  /** Credit to https://github.com/jonschlinkert/shallow-clone MIT */
-
-  var clone = function clone(val) {
-    if (isElement(val)) {
-      return val;
-    } else if (isArray(val)) {
-      return val.slice();
-    } else if (isDate(val)) {
-      return new val.constructor(Number(val));
-    } else if (isMap(val)) {
-      return new Map(val);
-    } else if (isSet(val)) {
-      return new Set(val);
-    } else if (isSymbol(val)) {
-      return Symbol.prototype.valueOf ? Object(Symbol.prototype.valueOf.call(val)) : {};
-    } else if (isRegexp(val)) {
-      var re = new val.constructor(val.source, /\w+$/.exec(val));
-      re.lastIndex = val.lastIndex;
-      return re;
-    } else if (isError(val)) {
-      return Object.create(val);
-    } else if (isPlainObject(val)) {
-      return Object.assign({}, val);
-    }
-
-    return val;
-  };
-
-  function deepMergeTwo(target, source) {
-    var sourceIsArray = isArray(source);
-    var targetIsArray = isArray(target);
-
-    if (isUndefined(source)) {
-      return target;
-    }
-
-    if (sourceIsArray !== targetIsArray) {
-      return clone(source);
-    } else if (sourceIsArray) {
-      return clone(source);
-    } else if (isPlainObject(target) && isPlainObject(source)) {
-      Object.keys(source).forEach(function (key) {
-        target[key] = deepMergeTwo(target[key], source[key]);
-      });
-      return target;
-    }
-
-    return clone(source);
-  }
-
-  var deepMerge = function deepMerge() {
-    for (var _len6 = arguments.length, args = new Array(_len6), _key6 = 0; _key6 < _len6; _key6++) {
-      args[_key6] = arguments[_key6];
-    }
-
-    return args.filter(isObject).reduce(deepMergeTwo, {});
   };
   var dasherize = function dasherize(word) {
     return word.replace(/([a-z\d])([A-Z])/g, '$1-$2').toLowerCase();
@@ -953,7 +848,7 @@
     }
   };
 
-  var bind = function bind(event, selector, callback, element, once) {
+  var bind = function bind(event, selector, callback, element) {
     var emitter = EventEmitter.getEventEmitter(element);
 
     var _EventEmitter$parseEv2 = EventEmitter.parseEvent(event),
@@ -965,12 +860,7 @@
 
     var delegator = getDelegator(event, selector, callback, element);
     callback._delegator = delegator;
-
-    if (once) {
-      emitter.once(event, delegator);
-    } else {
-      emitter.on(event, delegator);
-    }
+    emitter.on(event, delegator);
   };
 
   var removeEvent = curryWith(function (events, selector, callback, element) {
@@ -1056,12 +946,10 @@
 
       this.$element = element;
       this._states = {};
-      this.options = deepMerge({}, DEFAULTS, options, this.getDataOptions());
-      this.classes = deepMerge({}, CLASSES, this.options.classes);
-      this.selectors = deepMerge({}, SELECTORS, this.options.selectors);
+      this.options = Object.assign({}, DEFAULTS, options, this.getDataOptions());
+      this.classes = Object.assign({}, CLASSES, this.options.classes);
       this.pageX = null;
       this.pageY = null;
-      this.timer = null;
       this.overlayTimer = null;
       this.overlayVisible = false;
       this.stopLoading = false;
@@ -1090,41 +978,40 @@
         }
       }
     }, {
-      key: "initOverlay",
-      value: function initOverlay() {
-        this.$overlay = appendTo("<div class=\"".concat(this.classes.OVERLAY, "\"><div class=\"").concat(this.classes.LENS, "\"></div></div>"), this.$element);
-        this.$lens = query(this.selectors.LENS, this.$overlay);
-        this.bindOverlayEvent();
-      }
-    }, {
       key: "initWindow",
       value: function initWindow() {
-        this.$window = appendTo("<div class=\"".concat(this.classes.WINDOW, "\"><img src=\"\" alt=\"\" /></div>"), this.$wrap);
-        this.$windowImage = query('img', this.$window);
-        this.$windowImage.classList.add(this.classes.WINDOWIMAGE);
+        this.$window = appendTo("<div class=\"".concat(this.classes.WINDOW, "\"><img class=\"").concat(this.classes.WINDOWIMAGE, "\" src=\"\" alt=\"\" /></div>"), this.$wrap);
+        this.$windowImage = query(".".concat(this.classes.WINDOWIMAGE), this.$window);
         setStyle({
           width: this.options.windowWidth,
           height: this.options.windowHeight
         }, this.$window);
-        this.$wrap.classList.add(this.classes.POSITION + this.options.position);
+        this.$wrap.classList.add("".concat(this.classes.POSITION).concat(this.options.position));
+      }
+    }, {
+      key: "initOverlay",
+      value: function initOverlay() {
+        this.$overlay = appendTo("<div class=\"".concat(this.classes.OVERLAY, "\"><div class=\"").concat(this.classes.LENS, "\"></div></div>"), this.$element);
+        this.$lens = query(".".concat(this.classes.LENS), this.$overlay);
+        this.bindOverlayEvent();
       }
     }, {
       key: "bindOverlayEvent",
       value: function bindOverlayEvent() {
         var _this = this;
 
+        bindEvent('mouseenter', function () {
+          if (_this.overlayTimer) {
+            clearTimeout(_this.overlayTimer);
+            _this.overlayTimer = null;
+          }
+        }, this.$overlay);
         bindEvent('mouseleave', function () {
           trigger(_this.eventName('hideoverlay'), _this.$overlay);
           _this.overlayVisible = false;
           setStyle({
             display: 'none'
           }, _this.$overlay);
-        }, this.$overlay);
-        bindEvent('mouseenter', function () {
-          if (_this.overlayTimer) {
-            clearTimeout(_this.overlayTimer);
-            _this.overlayTimer = null;
-          }
         }, this.$overlay);
       }
     }, {
@@ -1150,18 +1037,21 @@
           _this3.hideWindow(e);
         }, this.$overlay);
         bindEvent(this.eventName('mousemove'), function (e) {
-          _this3.moveWindow(e, _this3.$image);
+          _this3.moveWindow(e);
         }, this.$overlay);
         this.showOverlay();
-        trigger(this.eventName('windowshow'), this.$element);
-        this.delay();
+        this.stopLoading = true;
+        setStyle({
+          width: this.options.windowWidth,
+          height: this.options.windowHeight
+        }, this.$window);
+        this.showWindowImage();
       }
     }, {
       key: "hideWindow",
       value: function hideWindow(e) {
         if (e && e.stopPropagation) e.stopPropagation();
         if (e && e.preventDefault) e.preventDefault();
-        clearTimeout(this.timer);
         removeEvent(this.eventName('hideoverlay'), this.$overlay);
         removeEvent(this.eventName('mousemove'), this.$overlay);
         this.stopLoading = false;
@@ -1171,25 +1061,34 @@
           transform: 'none'
         }, this.$windowImage);
         this.$window.classList.remove(this.classes.SHOW);
-        trigger(this.eventName('windowhide'), this.$element);
         this.clearLens();
       }
     }, {
       key: "moveWindow",
-      value: function moveWindow(e, $target) {
+      value: function moveWindow(e) {
         e.preventDefault();
         e.stopPropagation();
         this.pageX = e.pageX;
         this.pageY = e.pageY;
-        this.positionWindow($target, e);
+        this.positionWindow(e, this.$image);
+      }
+    }, {
+      key: "positionWindow",
+      value: function positionWindow(e, $image) {
+        var mouseX = Math.round(e.pageX - getOffset($image).left);
+        var mouseY = Math.round(e.pageY - getOffset($image).top);
+        var lensPos = this.moveLens(mouseX, mouseY);
+        var width = outerWidth(this.$windowImage);
+        var height = outerHeight(this.$windowImage);
+        var left = -Math.round(width * lensPos.x);
+        var top = -Math.round(height * lensPos.y);
+        this.moveWindowImage(left, top);
       }
     }, {
       key: "showOverlay",
       value: function showOverlay() {
         trigger(this.eventName('showoverlay'), this.$overlay);
         setStyle({
-          width: outerWidth(this.$image),
-          height: outerHeight(this.$image),
           display: 'block'
         }, this.$overlay);
         this.overlayVisible = true;
@@ -1208,30 +1107,15 @@
         }, 100);
       }
     }, {
-      key: "delay",
-      value: function delay() {
-        var _this5 = this;
-
-        this.stopLoading = true;
-        this.timer = setTimeout(function () {
-          _this5.delayWindow();
-        }, 1);
-      }
-    }, {
-      key: "delayWindow",
-      value: function delayWindow() {
-        setStyle({
-          width: this.options.windowWidth,
-          height: this.options.windowHeight
-        }, this.$window);
+      key: "showWindowImage",
+      value: function showWindowImage() {
         var imagePreview = new Image();
         var src = this.$image.getAttribute(this.options.source);
         imagePreview.src = src;
 
         if (this.stopLoading) {
           this.$window.classList.add(this.classes.SHOW);
-          this.$windowImage.setAttribute('src', src); // $window set background-image to loaderUrl
-
+          this.$windowImage.setAttribute('src', src);
           setStyle({
             'background-image': "url(".concat(LOADER.loader, ")")
           }, this.$window);
@@ -1242,7 +1126,7 @@
           if (self.stopLoading) {
             self.$window.classList.add(self.classes.SHOW);
             setStyle({
-              'background-color': '#fff'
+              'background-color': self.options.windowBackground || '#ffffff'
             }, self.$window);
             var width = self.options.windowWidth * 2;
             var height = self.options.windowHeight * 2;
@@ -1261,108 +1145,77 @@
             }, self.$windowImage);
             self.$windowImage.setAttribute('src', src);
             self.$windowImage.setAttribute('width', width);
-            self.$windowImage.setAttribute('height', height); // $window set background-image to none
-
+            self.$windowImage.setAttribute('height', height);
             setStyle('background-image', 'none', self.$window);
             var e = {
               pageX: self.pageX,
               pageY: self.pageY
             };
             self.initLens();
-            self.positionWindow(self.$image, e);
+            self.positionWindow(e, self.$image);
           }
         });
       }
     }, {
-      key: "initLens",
-      value: function initLens() {
-        var ratioWidth = this.options.windowWidth / outerWidth(this.$windowImage);
-        var ratioHeight = this.options.windowHeight / outerHeight(this.$windowImage);
-        setStyle({
-          'background': "url(".concat(this.$image.getAttribute('src'), ") 0 0 no-repeat")
-        }, this.$lens);
-        var width = Math.round(ratioWidth * outerWidth(this.$image));
-        var height = Math.round(ratioHeight * outerHeight(this.$image));
-        this.setLensSize(width, height);
-      }
-    }, {
-      key: "setLensSize",
-      value: function setLensSize(width, height) {
-        setStyle({
-          width: width,
-          height: height
-        }, this.$lens);
-        this.lensSize.width = width;
-        this.lensSize.height = height;
-      }
-    }, {
-      key: "clearLens",
-      value: function clearLens() {
-        setStyle({
-          background: 'transparent'
-        }, this.$lens);
-      }
-    }, {
-      key: "positionWindow",
-      value: function positionWindow($target, e) {
-        var mouseX = Math.round(e.pageX - getOffset($target).left);
-        var mouseY = Math.round(e.pageY - getOffset($target).top);
-        var lensPos = this.moveLens(mouseX, mouseY);
-        var width = outerWidth(this.$windowImage);
-        var height = outerHeight(this.$windowImage);
-        var left = -Math.round(width * lensPos.x);
-        var top = -Math.round(height * lensPos.y);
-        this.moveWindowImage(left, top);
-      }
-    }, {
       key: "moveWindowImage",
       value: function moveWindowImage(left, top) {
-        var width = this.options.windowWidth;
-        var height = this.options.windowHeight;
-        var $img = this.$windowImage;
-
         if (left >= 0) {
           left = 0;
         }
 
-        if (left <= width - outerWidth($img)) {
-          left = width - outerWidth($img);
+        if (left <= this.options.windowWidth - outerWidth(this.$windowImage)) {
+          left = this.options.windowWidth - outerWidth(this.$windowImage);
         }
 
         if (top >= 0) {
           top = 0;
         }
 
-        if (top <= height - outerHeight($img)) {
-          top = height - outerHeight($img);
+        if (top <= this.options.windowHeight - outerHeight(this.$windowImage)) {
+          top = this.options.windowHeight - outerHeight(this.$windowImage);
         }
 
         setStyle({
           transform: "translate(".concat(left, "px, ").concat(top, "px)")
-        }, $img);
+        }, this.$windowImage);
+      }
+    }, {
+      key: "initLens",
+      value: function initLens() {
+        var ratioWidth = this.options.windowWidth / outerWidth(this.$windowImage);
+        var ratioHeight = this.options.windowHeight / outerHeight(this.$windowImage);
+        var width = Math.round(ratioWidth * outerWidth(this.$image));
+        var height = Math.round(ratioHeight * outerHeight(this.$image));
+        this.lensSize.width = width;
+        this.lensSize.height = height;
+        setStyle({
+          width: width,
+          height: height
+        }, this.$lens);
+        setStyle({
+          'background': "url(".concat(this.$image.getAttribute('src'), ") 0 0 no-repeat")
+        }, this.$lens);
       }
     }, {
       key: "moveLens",
       value: function moveLens(mouseX, mouseY) {
-        var $img = this.$image;
-        var size = this.lensSize;
-        var left = Math.round(mouseX - size.width / 2);
-        var top = Math.round(mouseY - size.height / 2);
+        var left = Math.round(mouseX - this.lensSize.width / 2);
+        var top = Math.round(mouseY - this.lensSize.height / 2);
 
         if (left <= 0) {
           left = 0;
         }
 
-        if (left >= outerWidth($img) - size.width) {
-          left = outerWidth($img) - size.width;
+        if (left >= outerWidth(this.$image) - this.lensSize.width) {
+          left = outerWidth(this.$image) - this.lensSize.width;
         }
 
         if (top <= 0) {
           top = 0;
         }
 
-        if (top >= outerHeight($img) - size.height) {
-          top = outerHeight($img) - size.height;
+        if (top >= outerHeight(this.$image) - this.lensSize.height) {
+          top = outerHeight(this.$image) - this.lensSize.height;
         }
 
         setStyle({
@@ -1370,9 +1223,16 @@
           backgroundPosition: "".concat(-left, "px ").concat(-top, "px")
         }, this.$lens);
         return {
-          x: left / outerWidth($img),
-          y: top / outerHeight($img)
+          x: left / outerWidth(this.$image),
+          y: top / outerHeight(this.$image)
         };
+      }
+    }, {
+      key: "clearLens",
+      value: function clearLens() {
+        setStyle({
+          background: 'transparent'
+        }, this.$lens);
       }
     }, {
       key: "eventName",

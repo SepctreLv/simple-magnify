@@ -41,11 +41,10 @@ $magnify-lens-bg: rgba(0, 0, 0, 0.2) !default;
 
   &-window {
     position: absolute;
-    z-index: 99999999;
+    z-index: 999999;
     display: none;
     overflow: hidden;
     border-radius: 2px;
-    background-color: #fff;
     background-position: 50% 50%;
     background-repeat: no-repeat;
     box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.5);
