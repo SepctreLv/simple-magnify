@@ -2,11 +2,13 @@ export const CLASSES = {
   MAGNIFY: 'magnify',
   WINDOW: 'magnify-window',
   WINDOWIMAGE: 'magnify-window-image',
+  WINDOWSHOW: 'magnify-window-show',
   OVERLAY: 'magnify-overlay',
   LENS: 'magnify-lens',
+  LENSIMAGE: 'magnify-lens-image',
   POSITION: 'magnify-window-',
-  SHOW: 'magnify-window-show',
-  IMAGE: 'magnify-image'
+  IMAGE: 'magnify-image',
+  SHOW: 'magnify-show'
 }
 
 export const DEFAULTS = {

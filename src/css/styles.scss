@@ -1,7 +1,7 @@
 // Variables
 // ========================================================================
 $preview-gutter: 50px !default;
-$wrap-width: 400px !default;
+$wrap-size: 400px !default;
 $thumb-list-gutter: 20px !default;
 $thumb-item-width: 64px !default;
 $border-color: rgba(0, 0, 0, 0.1) !default;
@@ -37,17 +37,23 @@ img {
 .magnify-wrap {
   position: relative;
   display: table-cell;
-  width: $wrap-width;
-  height: $wrap-width;
+  width: $wrap-size;
+  height: $wrap-size;
   border: 1px solid $border-color;
   text-align: center;
   vertical-align: middle;
   box-sizing: content-box;
+
+  .magnify,
+  .magnify-image {
+    max-width: $wrap-size;
+    max-height: $wrap-size;
+  }
 }
 
 .thumb {
   &-list {
-    width: $wrap-width;
+    width: $wrap-size;
     margin-top: $thumb-list-gutter;
 
     ul {

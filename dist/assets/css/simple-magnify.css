@@ -7,30 +7,51 @@
 .magnify {
   position: relative;
   display: inline-block;
+  max-width: 100%;
+  max-height: 100%;
 }
 
 .magnify-overlay {
   position: absolute;
   top: 0;
   left: 0;
-  z-index: 100;
-  display: none;
-  width: 100%;
-  height: 100%;
+  right: 0;
+  bottom: 0;
   background-color: rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 300ms, visibility 300ms;
 }
 
-.magnify-overlay .magnify-lens {
+.magnify-lens {
+  box-sizing: content-box;
   position: absolute;
   top: 0;
   left: 0;
-  cursor: crosshair;
+  z-index: 1000;
   margin-top: -4px;
   margin-left: -4px;
   border: 4px solid #ffffff;
   border-radius: 2px;
   background-color: rgba(0, 0, 0, 0.2);
-  box-sizing: content-box;
+  overflow: hidden;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 200ms, visibility 200ms;
+}
+
+.magnify-image {
+  max-width: 100%;
+  max-height: 100%;
+  cursor: crosshair;
+}
+
+.magnify.magnify-show .magnify-overlay,
+.magnify.magnify-show .magnify-lens {
+  opacity: 1;
+  visibility: visible;
 }
 
 .magnify-window {

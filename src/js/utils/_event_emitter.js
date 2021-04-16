@@ -3,7 +3,7 @@ export default class EventEmitter {
     this.listeners = {}
     this.namespaces = {}
     this.element = element
-    this.element._eventEmitter = this
+    this.element.__eventEmitter = this
   }
 
   emit(event, ...args) {
@@ -339,9 +339,9 @@ export default class EventEmitter {
   }
 
   static getEventEmitter(element) {
-    if (!element._eventEmitter) {
-      element._eventEmitter = new this(element)
+    if (!element.__eventEmitter) {
+      element.__eventEmitter = new this(element)
     }
-    return element._eventEmitter
+    return element.__eventEmitter
   }
 }

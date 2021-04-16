@@ -62,6 +62,45 @@
     return obj;
   }
 
+  function _setPrototypeOf(o, p) {
+    _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) {
+      o.__proto__ = p;
+      return o;
+    };
+
+    return _setPrototypeOf(o, p);
+  }
+
+  function _isNativeReflectConstruct() {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+
+    try {
+      Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function _construct(Parent, args, Class) {
+    if (_isNativeReflectConstruct()) {
+      _construct = Reflect.construct;
+    } else {
+      _construct = function _construct(Parent, args, Class) {
+        var a = [null];
+        a.push.apply(a, args);
+        var Constructor = Function.bind.apply(Parent, a);
+        var instance = new Constructor();
+        if (Class) _setPrototypeOf(instance, Class.prototype);
+        return instance;
+      };
+    }
+
+    return _construct.apply(null, arguments);
+  }
+
   function _slicedToArray(arr, i) {
     return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest();
   }
@@ -138,11 +177,13 @@
     MAGNIFY: 'magnify',
     WINDOW: 'magnify-window',
     WINDOWIMAGE: 'magnify-window-image',
+    WINDOWSHOW: 'magnify-window-show',
     OVERLAY: 'magnify-overlay',
     LENS: 'magnify-lens',
+    LENSIMAGE: 'magnify-lens-image',
     POSITION: 'magnify-window-',
-    SHOW: 'magnify-window-show',
-    IMAGE: 'magnify-image'
+    IMAGE: 'magnify-image',
+    SHOW: 'magnify-show'
   };
   var DEFAULTS = {
     source: 'data-origin',
@@ -381,7 +422,7 @@
       this.listeners = {};
       this.namespaces = {};
       this.element = element;
-      this.element._eventEmitter = this;
+      this.element.__eventEmitter = this;
     }
 
     _createClass(EventEmitter, [{
@@ -762,11 +803,11 @@
     }, {
       key: "getEventEmitter",
       value: function getEventEmitter(element) {
-        if (!element._eventEmitter) {
-          element._eventEmitter = new this(element);
+        if (!element.__eventEmitter) {
+          element.__eventEmitter = new this(element);
         }
 
-        return element._eventEmitter;
+        return element.__eventEmitter;
       }
     }]);
 
@@ -775,41 +816,6 @@
 
   var supportEventListener = function supportEventListener(element) {
     return _typeof(element) === 'object' && 'addEventListener' in element;
-  };
-
-  var trigger = function trigger(event) {
-    for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-      args[_key - 1] = arguments[_key];
-    }
-
-    var element = args[args.length - 1];
-
-    if (!supportEventListener(element)) {
-      return;
-    }
-
-    if (event instanceof window.Event) {
-      element.dispatchEvent(event);
-      return;
-    }
-
-    var data = args.length > 1 ? args.slice(0, args.length - 1) : null;
-
-    var _EventEmitter$parseEv = EventEmitter.parseEvent(event),
-        eventName = _EventEmitter$parseEv.eventName,
-        namespace = _EventEmitter$parseEv.namespace;
-
-    var cusEvent = new CustomEvent(eventName, {
-      cancelable: true,
-      bubbles: true,
-      detail: data
-    });
-
-    if (namespace) {
-      cusEvent.namespace = namespace;
-    }
-
-    element.dispatchEvent(cusEvent);
   };
 
   var getDelegator = function getDelegator(event, selector, callback, element) {
@@ -951,8 +957,6 @@
       this.classes = Object.assign({}, CLASSES, this.options.classes);
       this.pageX = null;
       this.pageY = null;
-      this.overlayTimer = null;
-      this.overlayVisible = false;
       this.stopLoading = false;
       this.lensSize = {};
       this.init();
@@ -967,6 +971,7 @@
         this.initWrap();
         this.initWindow();
         this.initOverlay();
+        this.initLens();
         this.bind();
       }
     }, {
@@ -992,77 +997,61 @@
     }, {
       key: "initOverlay",
       value: function initOverlay() {
-        this.$overlay = appendTo("<div class=\"".concat(this.classes.OVERLAY, "\"><div class=\"").concat(this.classes.LENS, "\"></div></div>"), this.$element);
-        this.$lens = query(".".concat(this.classes.LENS), this.$overlay);
-        this.bindOverlayEvent();
+        this.$overlay = appendTo("<div class=\"".concat(this.classes.OVERLAY, "\"></div>"), this.$element);
       }
     }, {
-      key: "bindOverlayEvent",
-      value: function bindOverlayEvent() {
-        var _this = this;
-
-        bindEvent('mouseenter', function () {
-          if (_this.overlayTimer) {
-            clearTimeout(_this.overlayTimer);
-            _this.overlayTimer = null;
-          }
-        }, this.$overlay);
-        bindEvent('mouseleave', function () {
-          trigger(_this.eventName('hideoverlay'), _this.$overlay);
-          _this.overlayVisible = false;
-          setStyle({
-            display: 'none'
-          }, _this.$overlay);
-        }, this.$overlay);
+      key: "initLens",
+      value: function initLens() {
+        this.$lens = appendTo("<div class=\"".concat(this.classes.LENS, "\"><img class=\"").concat(this.classes.LENSIMAGE, "\" src=\"\" alt=\"\" /></div>"), this.$element);
+        this.$lensImage = query(".".concat(this.classes.LENSIMAGE), this.$lens);
       }
     }, {
       key: "bind",
       value: function bind() {
-        var _this2 = this;
+        var _this = this;
 
-        bindEvent(this.eventName('mouseenter'), function (e) {
-          _this2.showWindow(e);
+        bindEvent(this.eventName('mouseenter'), function () {
+          _this.show();
         }, this.$image);
-        bindEvent(this.eventName('mouseleave'), function (e) {
-          _this2.hideOverlay(e);
+        bindEvent(this.eventName('mouseleave'), function () {
+          _this.hide();
         }, this.$image);
       }
     }, {
-      key: "showWindow",
-      value: function showWindow(e) {
-        var _this3 = this;
+      key: "show",
+      value: function show() {
+        if (this.is('hided')) {
+          this.leave('hided');
+        }
 
-        e.preventDefault();
-        e.stopPropagation();
-        bindEvent(this.eventName('hideoverlay'), function (e) {
-          _this3.hideWindow(e);
-        }, this.$overlay);
-        bindEvent(this.eventName('mousemove'), function (e) {
-          _this3.moveWindow(e);
-        }, this.$overlay);
-        this.showOverlay();
-        this.stopLoading = true;
-        setStyle({
-          width: this.options.windowWidth,
-          height: this.options.windowHeight
-        }, this.$window);
-        this.showWindowImage();
+        if (!this.is('shown')) {
+          bindEvent(this.eventName('mousemove'), this.moveWindow.bind(this), this.$image);
+          this.$element.classList.add(this.classes.SHOW);
+          this.enter('stopLoading');
+          this.showWindowImage();
+          this.enter('shown');
+        }
       }
     }, {
-      key: "hideWindow",
-      value: function hideWindow(e) {
-        if (e && e.stopPropagation) e.stopPropagation();
-        if (e && e.preventDefault) e.preventDefault();
-        removeEvent(this.eventName('hideoverlay'), this.$overlay);
-        removeEvent(this.eventName('mousemove'), this.$overlay);
-        this.stopLoading = false;
-        setStyle({
-          width: 'auto',
-          height: 'auto',
-          transform: 'none'
-        }, this.$windowImage);
-        this.$window.classList.remove(this.classes.SHOW);
-        this.clearLens();
+      key: "hide",
+      value: function hide() {
+        if (this.is('shown')) {
+          this.$element.classList.remove(this.classes.SHOW);
+          removeEvent(this.eventName('mousemove'), this.$image);
+          this.leave('stopLoading');
+          setStyle({
+            width: 'auto',
+            height: 'auto',
+            transform: 'none'
+          }, this.$windowImage);
+          this.$window.classList.remove(this.classes.WINDOWSHOW);
+          this.clearLens();
+          this.leave('shown');
+        }
+
+        if (!this.is('hided')) {
+          this.enter('hided');
+        }
       }
     }, {
       key: "moveWindow",
@@ -1074,48 +1063,14 @@
         this.positionWindow(e, this.$image);
       }
     }, {
-      key: "positionWindow",
-      value: function positionWindow(e, $image) {
-        var mouseX = Math.round(e.pageX - getOffset($image).left);
-        var mouseY = Math.round(e.pageY - getOffset($image).top);
-        var lensPos = this.moveLens(mouseX, mouseY);
-        var width = outerWidth(this.$windowImage);
-        var height = outerHeight(this.$windowImage);
-        var left = -Math.round(width * lensPos.x);
-        var top = -Math.round(height * lensPos.y);
-        this.moveWindowImage(left, top);
-      }
-    }, {
-      key: "showOverlay",
-      value: function showOverlay() {
-        trigger(this.eventName('showoverlay'), this.$overlay);
-        setStyle({
-          display: 'block'
-        }, this.$overlay);
-        this.overlayVisible = true;
-      }
-    }, {
-      key: "hideOverlay",
-      value: function hideOverlay() {
-        var _this4 = this;
-
-        this.overlayTimer = setTimeout(function () {
-          trigger(_this4.eventName('hideoverlay'), _this4.$overlay);
-          _this4.overlayVisible = false;
-          setStyle({
-            display: 'none'
-          }, _this4.$overlay);
-        }, 100);
-      }
-    }, {
       key: "showWindowImage",
       value: function showWindowImage() {
         var imagePreview = new Image();
         var src = this.$image.getAttribute(this.options.source);
         imagePreview.src = src;
 
-        if (this.stopLoading) {
-          this.$window.classList.add(this.classes.SHOW);
+        if (this.is('stopLoading')) {
+          this.$window.classList.add(this.classes.WINDOWSHOW);
           this.$windowImage.setAttribute('src', src);
           setStyle({
             'background-image': "url(".concat(LOADER.loader, ")")
@@ -1124,8 +1079,8 @@
 
         var self = this;
         imagePreview.addEventListener('load', function () {
-          if (self.stopLoading) {
-            self.$window.classList.add(self.classes.SHOW);
+          if (self.is('stopLoading')) {
+            self.$window.classList.add(self.classes.WINDOWSHOW);
             setStyle({
               'background-color': self.options.windowBackground || '#ffffff'
             }, self.$window);
@@ -1152,10 +1107,22 @@
               pageX: self.pageX,
               pageY: self.pageY
             };
-            self.initLens();
+            self.setLens();
             self.positionWindow(e, self.$image);
           }
         });
+      }
+    }, {
+      key: "positionWindow",
+      value: function positionWindow(e, $image) {
+        var mouseX = Math.round(e.pageX - getOffset($image).left);
+        var mouseY = Math.round(e.pageY - getOffset($image).top);
+        var lensPos = this.moveLens(mouseX, mouseY);
+        var width = outerWidth(this.$windowImage);
+        var height = outerHeight(this.$windowImage);
+        var left = -Math.round(width * lensPos.x);
+        var top = -Math.round(height * lensPos.y);
+        this.moveWindowImage(left, top);
       }
     }, {
       key: "moveWindowImage",
@@ -1181,8 +1148,8 @@
         }, this.$windowImage);
       }
     }, {
-      key: "initLens",
-      value: function initLens() {
+      key: "setLens",
+      value: function setLens() {
         var ratioWidth = this.options.windowWidth / outerWidth(this.$windowImage);
         var ratioHeight = this.options.windowHeight / outerHeight(this.$windowImage);
         var width = Math.round(ratioWidth * outerWidth(this.$image));
@@ -1194,8 +1161,12 @@
           height: height
         }, this.$lens);
         setStyle({
-          'background': "url(".concat(this.$image.getAttribute('src'), ") 0 0 no-repeat")
-        }, this.$lens);
+          width: outerWidth(this.$image),
+          height: outerHeight(this.$image)
+        }, this.$lensImage);
+        this.$lensImage.setAttribute('width', outerWidth(this.$image));
+        this.$lensImage.setAttribute('height', outerHeight(this.$image));
+        this.$lensImage.setAttribute('src', this.$image.getAttribute('src'));
       }
     }, {
       key: "moveLens",
@@ -1220,9 +1191,11 @@
         }
 
         setStyle({
-          transform: "translate(".concat(left, "px, ").concat(top, "px)"),
-          backgroundPosition: "".concat(-left, "px ").concat(-top, "px")
+          transform: "translate(".concat(left, "px, ").concat(top, "px)")
         }, this.$lens);
+        setStyle({
+          transform: "translate(".concat(-left, "px, ").concat(-top, "px)")
+        }, this.$lensImage);
         return {
           x: left / outerWidth(this.$image),
           y: top / outerHeight(this.$image)
@@ -1231,14 +1204,39 @@
     }, {
       key: "clearLens",
       value: function clearLens() {
-        setStyle({
-          background: 'transparent'
-        }, this.$lens);
+        this.$lensImage.setAttribute('src', '');
       }
     }, {
       key: "eventName",
       value: function eventName(_eventName) {
         return _eventName + '.magnify';
+      }
+    }, {
+      key: "is",
+      value: function is(state) {
+        if (this._states[state] && this._states[state] > 0) {
+          return true;
+        }
+
+        return false;
+      }
+    }, {
+      key: "enter",
+      value: function enter(state) {
+        if (typeof this._states[state] === 'undefined') {
+          this._states[state] = 0;
+        }
+
+        this._states[state] = 1;
+      }
+    }, {
+      key: "leave",
+      value: function leave(state) {
+        if (typeof this._states[state] === 'undefined') {
+          this._states[state] = 0;
+        }
+
+        this._states[state] = 0;
       }
     }, {
       key: "getDataOptions",
@@ -1264,6 +1262,15 @@
             return Object.assign(result, _defineProperty({}, k, v));
           }
         }, {});
+      }
+    }], [{
+      key: "of",
+      value: function of() {
+        for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+          args[_key] = arguments[_key];
+        }
+
+        return _construct(this, args);
       }
     }]);
 

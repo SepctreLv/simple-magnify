@@ -11,8 +11,6 @@ export default class Magnify {
     this.classes = Object.assign({}, CLASSES, this.options.classes)
     this.pageX = null
     this.pageY = null
-    this.overlayTimer = null
-    this.overlayVisible = false
     this.stopLoading = false
     this.lensSize = {}
     this.init()
@@ -25,6 +23,7 @@ export default class Magnify {
     this.initWrap()
     this.initWindow()
     this.initOverlay()
+    this.initLens()
     this.bind()
   }
 
@@ -47,72 +46,74 @@ export default class Magnify {
   }
 
   initOverlay() {
-    this.$overlay = dom.appendTo(`<div class="${this.classes.OVERLAY}"><div class="${this.classes.LENS}"></div></div>`, this.$element)
-    this.$lens = dom.query(`.${this.classes.LENS}`, this.$overlay)
-    this.bindOverlayEvent()
+    this.$overlay = dom.appendTo(`<div class="${this.classes.OVERLAY}"></div>`, this.$element)
   }
 
-  bindOverlayEvent() {
-    event.bindEvent('mouseenter', () => {
-      if (this.overlayTimer) {
-        clearTimeout(this.overlayTimer)
-        this.overlayTimer = null
-      }
-    }, this.$overlay)
-
-    event.bindEvent('mouseleave', () => {
-      event.trigger(this.eventName('hideoverlay'), this.$overlay)
-      this.overlayVisible = false
-      utils.setStyle({
-        display: 'none'
-      }, this.$overlay)
-    }, this.$overlay)
+  initLens() {
+    this.$lens = dom.appendTo(`<div class="${this.classes.LENS}"><img class="${this.classes.LENSIMAGE}" src="" alt="" /></div>`, this.$element)
+    this.$lensImage = dom.query(`.${this.classes.LENSIMAGE}`, this.$lens)
   }
 
   bind() {
-    event.bindEvent(this.eventName('mouseenter'), e => {
-      this.showWindow(e)
-    }, this.$image)
-    event.bindEvent(this.eventName('mouseleave'), e => {
-      this.hideOverlay(e)
-    }, this.$image)
+    event.bindEvent(
+      this.eventName('mouseenter'),
+      () => {
+        this.show()
+      },
+      this.$image
+    )
+
+    event.bindEvent(
+      this.eventName('mouseleave'),
+      () => {
+        this.hide()
+      },
+      this.$image
+    )
   }
 
-  showWindow(e) {
-    e.preventDefault()
-    e.stopPropagation()
+  show() {
+    if (this.is('hided')) {
+      this.leave('hided')
+    }
 
-    event.bindEvent(this.eventName('hideoverlay'), e => {
-      this.hideWindow(e)
-    }, this.$overlay)
+    if (!this.is('shown')) {
+      event.bindEvent(
+        this.eventName('mousemove'),
+        this.moveWindow.bind(this),
+        this.$image
+      )
 
-    event.bindEvent(this.eventName('mousemove'), e => {
-      this.moveWindow(e)
-    }, this.$overlay)
+      this.$element.classList.add(this.classes.SHOW)
+      this.enter('stopLoading')
+      this.showWindowImage()
 
-    this.showOverlay()
-    this.stopLoading = true
-    utils.setStyle({
-      width: this.options.windowWidth,
-      height: this.options.windowHeight
-    }, this.$window)
-    this.showWindowImage()
+      this.enter('shown')
+    }
   }
 
-  hideWindow(e) {
-    if(e && e.stopPropagation) e.stopPropagation()
-		if(e && e.preventDefault) e.preventDefault()
+  hide() {
+    if (this.is('shown')) {
+      this.$element.classList.remove(this.classes.SHOW)
+      event.removeEvent(
+        this.eventName('mousemove'),
+        this.$image
+      )
+      this.leave('stopLoading')
+      utils.setStyle({
+        width: 'auto',
+        height: 'auto',
+        transform: 'none'
+      }, this.$windowImage)
+      this.$window.classList.remove(this.classes.WINDOWSHOW)
+      this.clearLens()
 
-    event.removeEvent(this.eventName('hideoverlay'), this.$overlay)
-    event.removeEvent(this.eventName('mousemove'), this.$overlay)
-    this.stopLoading = false
-    utils.setStyle({
-      width: 'auto',
-      height: 'auto',
-      transform: 'none'
-    }, this.$windowImage)
-    this.$window.classList.remove(this.classes.SHOW)
-    this.clearLens()
+      this.leave('shown')
+    }
+
+    if (!this.is('hided')) {
+      this.enter('hided')
+    }
   }
 
   moveWindow(e) {
@@ -123,43 +124,13 @@ export default class Magnify {
     this.positionWindow(e, this.$image)
   }
 
-  positionWindow(e, $image) {
-    const mouseX = Math.round(e.pageX - dom.getOffset($image).left)
-    const mouseY = Math.round(e.pageY - dom.getOffset($image).top)
-    const lensPos = this.moveLens(mouseX, mouseY)
-    const width = dom.outerWidth(this.$windowImage)
-    const height = dom.outerHeight(this.$windowImage)
-    const left = -Math.round(width * lensPos.x)
-    const top = -Math.round(height * lensPos.y)
-
-    this.moveWindowImage(left, top)
-  }
-
-  showOverlay() {
-    event.trigger(this.eventName('showoverlay'), this.$overlay)
-    utils.setStyle({
-      display: 'block'
-    }, this.$overlay)
-    this.overlayVisible = true
-  }
-
-  hideOverlay() {
-    this.overlayTimer = setTimeout(() => {
-      event.trigger(this.eventName('hideoverlay'), this.$overlay)
-      this.overlayVisible = false
-      utils.setStyle({
-        display: 'none'
-      }, this.$overlay)
-    }, 100)
-  }
-
   showWindowImage() {
     const imagePreview = new Image()
     const src = this.$image.getAttribute(this.options.source)
     imagePreview.src = src
 
-    if (this.stopLoading) {
-      this.$window.classList.add(this.classes.SHOW)
+    if (this.is('stopLoading')) {
+      this.$window.classList.add(this.classes.WINDOWSHOW)
       this.$windowImage.setAttribute('src', src)
       utils.setStyle({
         'background-image': `url(${LOADER.loader})`
@@ -169,8 +140,8 @@ export default class Magnify {
     const self = this
 
     imagePreview.addEventListener('load', function() {
-      if (self.stopLoading) {
-        self.$window.classList.add(self.classes.SHOW)
+      if (self.is('stopLoading')) {
+        self.$window.classList.add(self.classes.WINDOWSHOW)
         utils.setStyle({
           'background-color': self.options.windowBackground || '#ffffff'
         }, self.$window)
@@ -196,10 +167,22 @@ export default class Magnify {
           pageY: self.pageY
         }
 
-        self.initLens()
+        self.setLens()
         self.positionWindow(e, self.$image)
       }
     })
+  }
+
+  positionWindow(e, $image) {
+    const mouseX = Math.round(e.pageX - dom.getOffset($image).left)
+    const mouseY = Math.round(e.pageY - dom.getOffset($image).top)
+    const lensPos = this.moveLens(mouseX, mouseY)
+    const width = dom.outerWidth(this.$windowImage)
+    const height = dom.outerHeight(this.$windowImage)
+    const left = -Math.round(width * lensPos.x)
+    const top = -Math.round(height * lensPos.y)
+
+    this.moveWindowImage(left, top)
   }
 
   moveWindowImage(left, top) {
@@ -221,7 +204,7 @@ export default class Magnify {
     }, this.$windowImage)
   }
 
-  initLens() {
+  setLens() {
     const ratioWidth = this.options.windowWidth / dom.outerWidth(this.$windowImage)
     const ratioHeight = this.options.windowHeight / dom.outerHeight(this.$windowImage)
     const width = Math.round(ratioWidth * dom.outerWidth(this.$image))
@@ -235,8 +218,13 @@ export default class Magnify {
     }, this.$lens)
 
     utils.setStyle({
-      'background': `url(${this.$image.getAttribute('src')}) 0 0 no-repeat`
-    }, this.$lens)
+      width: dom.outerWidth(this.$image),
+      height: dom.outerHeight(this.$image)
+    }, this.$lensImage)
+
+    this.$lensImage.setAttribute('width', dom.outerWidth(this.$image))
+    this.$lensImage.setAttribute('height', dom.outerHeight(this.$image))
+    this.$lensImage.setAttribute('src', this.$image.getAttribute('src'))
   }
 
   moveLens(mouseX, mouseY) {
@@ -257,9 +245,12 @@ export default class Magnify {
     }
 
     utils.setStyle({
-      transform: `translate(${left}px, ${top}px)`,
-      backgroundPosition: `${-left}px ${-top}px`
+      transform: `translate(${left}px, ${top}px)`
     }, this.$lens)
+
+    utils.setStyle({
+      transform: `translate(${-left}px, ${-top}px)`
+    }, this.$lensImage)
 
     return {
       x: left / dom.outerWidth(this.$image),
@@ -268,13 +259,34 @@ export default class Magnify {
   }
 
   clearLens() {
-    utils.setStyle({
-      background: 'transparent'
-    }, this.$lens)
+    this.$lensImage.setAttribute('src', '')
   }
 
   eventName(eventName) {
     return eventName + '.magnify';
+  }
+
+  is(state) {
+    if (this._states[state] && this._states[state] > 0) {
+      return true
+    }
+    return false
+  }
+
+  enter(state) {
+    if (typeof this._states[state] === 'undefined') {
+      this._states[state] = 0
+    }
+
+    this._states[state] = 1
+  }
+
+  leave(state) {
+    if (typeof this._states[state] === 'undefined') {
+      this._states[state] = 0
+    }
+
+    this._states[state] = 0
   }
 
   getDataOptions() {
@@ -298,5 +310,9 @@ export default class Magnify {
         })
       }
     }, {})
+  }
+
+  static of(...args) {
+    return new this(...args)
   }
 }
