@@ -56,17 +56,9 @@ export default class Magnify {
 
   bind() {
     event.bindEvent(
-      this.eventName('mouseenter'),
+      this.eventName('mouseenter touchstart'),
       () => {
         this.show()
-      },
-      this.$image
-    )
-
-    event.bindEvent(
-      this.eventName('mouseleave'),
-      () => {
-        this.hide()
       },
       this.$image
     )
@@ -79,8 +71,16 @@ export default class Magnify {
 
     if (!this.is('shown')) {
       event.bindEvent(
-        this.eventName('mousemove'),
+        this.eventName('mousemove touchmove'),
         this.moveWindow.bind(this),
+        this.$image
+      )
+
+      event.bindEvent(
+        this.eventName('mouseleave touchend touchcancel'),
+        () => {
+          this.hide()
+        },
         this.$image
       )
 
@@ -97,7 +97,7 @@ export default class Magnify {
       this.$lens.classList.remove(this.classes.SHOW)
       this.$overlay.classList.remove(this.classes.SHOW)
       event.removeEvent(
-        this.eventName('mousemove'),
+        this.eventName('mousemove mouseleave touchmove touchend touchcancel'),
         this.$image
       )
       this.leave('stopLoading')
