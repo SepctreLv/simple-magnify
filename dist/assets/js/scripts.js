@@ -176,7 +176,6 @@
     MAGNIFY: 'magnify',
     WINDOW: 'magnify-window',
     WINDOWIMAGE: 'magnify-window-image',
-    WINDOWSHOW: 'magnify-window-show',
     OVERLAY: 'magnify-overlay',
     LENS: 'magnify-lens',
     LENSIMAGE: 'magnify-lens-image',
@@ -1025,7 +1024,7 @@
 
         if (!this.is('shown')) {
           bindEvent(this.eventName('mousemove'), this.moveWindow.bind(this), this.$image);
-          this.$element.classList.add(this.classes.SHOW);
+          this.$overlay.classList.add(this.classes.SHOW);
           this.enter('stopLoading');
           this.showWindowImage();
           this.enter('shown');
@@ -1035,7 +1034,8 @@
       key: "hide",
       value: function hide() {
         if (this.is('shown')) {
-          this.$element.classList.remove(this.classes.SHOW);
+          this.$lens.classList.remove(this.classes.SHOW);
+          this.$overlay.classList.remove(this.classes.SHOW);
           removeEvent(this.eventName('mousemove'), this.$image);
           this.leave('stopLoading');
           setStyle({
@@ -1043,7 +1043,7 @@
             height: 'auto',
             transform: 'none'
           }, this.$windowImage);
-          this.$window.classList.remove(this.classes.WINDOWSHOW);
+          this.$window.classList.remove(this.classes.SHOW);
           this.clearLens();
           this.leave('shown');
         }
@@ -1069,7 +1069,7 @@
         imagePreview.src = src;
 
         if (this.is('stopLoading')) {
-          this.$window.classList.add(this.classes.WINDOWSHOW);
+          this.$window.classList.add(this.classes.SHOW);
           this.$windowImage.setAttribute('src', src);
           setStyle({
             'background-image': "url(".concat(LOADER.loader, ")")
@@ -1079,7 +1079,7 @@
         var self = this;
         imagePreview.addEventListener('load', function () {
           if (self.is('stopLoading')) {
-            self.$window.classList.add(self.classes.WINDOWSHOW);
+            self.$window.classList.add(self.classes.SHOW);
             setStyle({
               'background-color': self.options.windowBackground || '#ffffff'
             }, self.$window);
@@ -1163,6 +1163,7 @@
           width: outerWidth(this.$image),
           height: outerHeight(this.$image)
         }, this.$lensImage);
+        this.$lens.classList.add(this.classes.SHOW);
         this.$lensImage.setAttribute('width', outerWidth(this.$image));
         this.$lensImage.setAttribute('height', outerHeight(this.$image));
         this.$lensImage.setAttribute('src', this.$image.getAttribute('src'));

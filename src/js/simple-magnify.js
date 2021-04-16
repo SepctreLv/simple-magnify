@@ -84,7 +84,7 @@ export default class Magnify {
         this.$image
       )
 
-      this.$element.classList.add(this.classes.SHOW)
+      this.$overlay.classList.add(this.classes.SHOW)
       this.enter('stopLoading')
       this.showWindowImage()
 
@@ -94,7 +94,8 @@ export default class Magnify {
 
   hide() {
     if (this.is('shown')) {
-      this.$element.classList.remove(this.classes.SHOW)
+      this.$lens.classList.remove(this.classes.SHOW)
+      this.$overlay.classList.remove(this.classes.SHOW)
       event.removeEvent(
         this.eventName('mousemove'),
         this.$image
@@ -105,7 +106,7 @@ export default class Magnify {
         height: 'auto',
         transform: 'none'
       }, this.$windowImage)
-      this.$window.classList.remove(this.classes.WINDOWSHOW)
+      this.$window.classList.remove(this.classes.SHOW)
       this.clearLens()
 
       this.leave('shown')
@@ -130,7 +131,7 @@ export default class Magnify {
     imagePreview.src = src
 
     if (this.is('stopLoading')) {
-      this.$window.classList.add(this.classes.WINDOWSHOW)
+      this.$window.classList.add(this.classes.SHOW)
       this.$windowImage.setAttribute('src', src)
       utils.setStyle({
         'background-image': `url(${LOADER.loader})`
@@ -141,7 +142,7 @@ export default class Magnify {
 
     imagePreview.addEventListener('load', function() {
       if (self.is('stopLoading')) {
-        self.$window.classList.add(self.classes.WINDOWSHOW)
+        self.$window.classList.add(self.classes.SHOW)
         utils.setStyle({
           'background-color': self.options.windowBackground || '#ffffff'
         }, self.$window)
@@ -222,6 +223,7 @@ export default class Magnify {
       height: dom.outerHeight(this.$image)
     }, this.$lensImage)
 
+    this.$lens.classList.add(this.classes.SHOW)
     this.$lensImage.setAttribute('width', dom.outerWidth(this.$image))
     this.$lensImage.setAttribute('height', dom.outerHeight(this.$image))
     this.$lensImage.setAttribute('src', this.$image.getAttribute('src'))
