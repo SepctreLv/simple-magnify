@@ -24,6 +24,11 @@
   transition: opacity 300ms, visibility 300ms;
 }
 
+.magnify-overlay.magnify-show {
+  opacity: 1;
+  visibility: visible;
+}
+
 .magnify-lens {
   box-sizing: content-box;
   position: absolute;
@@ -42,16 +47,15 @@
   transition: opacity 200ms, visibility 200ms;
 }
 
+.magnify-lens.magnify-show {
+  opacity: 1;
+  visibility: visible;
+}
+
 .magnify-image {
   max-width: 100%;
   max-height: 100%;
   cursor: crosshair;
-}
-
-.magnify.magnify-show .magnify-overlay,
-.magnify.magnify-show .magnify-lens {
-  opacity: 1;
-  visibility: visible;
 }
 
 .magnify-window {
@@ -97,6 +101,6 @@
   margin-top: 20px;
 }
 
-.magnify-window.magnify-window-show {
+.magnify-window.magnify-show {
   display: block;
 }
