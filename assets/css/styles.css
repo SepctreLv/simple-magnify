@@ -38,6 +38,12 @@ img {
   box-sizing: content-box;
 }
 
+.magnify-wrap .magnify,
+.magnify-wrap .magnify-image {
+  max-width: 400px;
+  max-height: 400px;
+}
+
 .thumb-list {
   width: 400px;
   margin-top: 20px;
