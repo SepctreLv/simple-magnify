@@ -20,7 +20,8 @@ body {
   margin: 0;
 }
 
-ul,li {
+ul,
+li {
   padding: 0;
   margin: 0;
   list-style: none;
@@ -39,7 +40,7 @@ img {
   display: table-cell;
   width: $wrap-size;
   height: $wrap-size;
-  border: 1px solid $border-color;
+  // border: 1px solid $border-color;
   text-align: center;
   vertical-align: middle;
   box-sizing: content-box;
