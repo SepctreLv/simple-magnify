@@ -1009,22 +1009,24 @@
       value: function bind() {
         var _this = this;
 
-        bindEvent(this.eventName('mouseenter'), function () {
+        bindEvent(this.eventName('mouseenter touchstart'), function () {
           _this.show();
-        }, this.$image);
-        bindEvent(this.eventName('mouseleave'), function () {
-          _this.hide();
         }, this.$image);
       }
     }, {
       key: "show",
       value: function show() {
+        var _this2 = this;
+
         if (this.is('hided')) {
           this.leave('hided');
         }
 
         if (!this.is('shown')) {
-          bindEvent(this.eventName('mousemove'), this.moveWindow.bind(this), this.$image);
+          bindEvent(this.eventName('mousemove touchmove'), this.moveWindow.bind(this), this.$image);
+          bindEvent(this.eventName('mouseleave touchend touchcancel'), function () {
+            _this2.hide();
+          }, this.$image);
           this.$overlay.classList.add(this.classes.SHOW);
           this.enter('stopLoading');
           this.showWindowImage();
@@ -1037,7 +1039,7 @@
         if (this.is('shown')) {
           this.$lens.classList.remove(this.classes.SHOW);
           this.$overlay.classList.remove(this.classes.SHOW);
-          removeEvent(this.eventName('mousemove'), this.$image);
+          removeEvent(this.eventName('mousemove mouseleave touchmove touchend touchcancel'), this.$image);
           this.leave('stopLoading');
           setStyle({
             width: 'auto',
