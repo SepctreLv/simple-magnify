@@ -66,6 +66,9 @@ build/Release
 !.vscode/launch.json
 !.vscode/extensions.json
 
+### Idea ###
+.idea
+
 ### System Files ###
 .DS_Store
 
